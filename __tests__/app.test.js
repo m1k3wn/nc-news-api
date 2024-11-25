@@ -22,7 +22,7 @@ describe("GET /api", () => {
         expect(endpoints).toEqual(endpointsJson);
       });
   });
-  test("200: Responds with correctly formatted GET /api documentation", () => {
+  test("200: Responds with formatted GET /api documentation", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -34,7 +34,7 @@ describe("GET /api", () => {
         );
       });
   });
-  test("200: Responds with correctly formatted documentation for further endpoints", () => {
+  test("200: Responds with formatted documentation for further endpoints", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -49,6 +49,22 @@ describe("GET /api", () => {
             );
           }
         });
+      });
+  });
+  test("500: Responds to internal server error", () => {
+    return request(app)
+      .get("/error-route")
+      .expect(500)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Internal Server Error");
+      });
+  });
+  test("404: Responds to non-existent endpoint", () => {
+    return request(app)
+      .get("/api/wrongpath")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Endpoint not found");
       });
   });
 });
