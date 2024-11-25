@@ -22,7 +22,7 @@ describe("GET /api", () => {
         expect(endpoints).toEqual(endpointsJson);
       });
   });
-  test("200: Responds with correctly formatted GET /api information", () => {
+  test("200: Responds with correctly formatted GET /api documentation", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -34,7 +34,7 @@ describe("GET /api", () => {
         );
       });
   });
-  test("200: Responds with correctly formatted information for further endpoints", () => {
+  test("200: Responds with correctly formatted documentation for further endpoints", () => {
     return request(app)
       .get("/api")
       .expect(200)
