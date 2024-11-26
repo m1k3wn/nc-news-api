@@ -2,8 +2,14 @@ const express = require("express");
 //controllers
 const { getApi } = require("./controllers/api.controller");
 const { getTopics } = require("./controllers/topics.controller");
+const { getArticles } = require("./controllers/articles.controller");
 //error handling middleware
-const { serverErrorHandler, wrongPathHandler } = require("./utils/api.utils");
+const {
+  serverErrorHandler,
+  wrongPathHandler,
+  postgresErrorHandler,
+  customErrorHandler,
+} = require("./utils/api.utils");
 const app = express();
 
 app.use(express.json());
@@ -11,14 +17,18 @@ app.use(express.json());
 // get requests
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
+app.get("/api/articles/:article_id", getArticles);
 
 // patch
 // post
 // delete
 
-// // error handling
+app.use(postgresErrorHandler);
+app.use(customErrorHandler);
+
+// // KEEP AT BOTTOM
 app.use("/api/*", wrongPathHandler);
 // internal server error (test block)
-app.use("*", serverErrorHandler);
+app.use("/*", serverErrorHandler);
 
 module.exports = app;
