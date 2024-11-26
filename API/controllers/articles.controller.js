@@ -1,12 +1,21 @@
 const {
   /* models */
-  selectArticles,
+  selectArticleById,
   checkArticleExists,
+  fetchArticles,
 } = require("../models/articles.model");
 
-exports.getArticles = (request, response, next) => {
+exports.getArticles = (request, response) => {
+  fetchArticles().then((articles) => {
+    response.status(200).send({ articles });
+  });
+};
+
+exports.getArticleById = (request, response, next) => {
   const { article_id } = request.params;
-  const promises = [selectArticles(article_id)];
+  // console.log(request.params, "<<<-- request params ");
+  // console.log(request.query, "<<<-- request query ");
+  const promises = [selectArticleById(article_id)];
   if (article_id) {
     promises.push(checkArticleExists(article_id));
   }
@@ -14,5 +23,7 @@ exports.getArticles = (request, response, next) => {
     .then(([article]) => {
       response.status(200).send({ article });
     })
-    .catch(next);
+    .catch((error) => {
+      next(error);
+    });
 };
