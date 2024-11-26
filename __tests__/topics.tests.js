@@ -13,7 +13,7 @@ afterAll(() => {
 });
 
 describe("GET /api/topics", () => {
-  it("200: Should respond with an array of all topics correctly formatted", () => {
+  test("200: Should respond with an array of all topics correctly formatted", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
@@ -25,7 +25,13 @@ describe("GET /api/topics", () => {
           expect(typeof topic.description && typeof topic.slug).toBe("string");
         });
       });
-    //
   });
-  //handle errors
+  test("404: Should repond with status and message for non-existent endpoint", () => {
+    return request(app)
+      .get("/api/topics/wrongpath")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Endpoint not found");
+      });
+  });
 });
