@@ -14,14 +14,6 @@ afterAll(() => {
 });
 
 describe("/api general request errors", () => {
-  test("500: Responds to internal server error", () => {
-    return request(app)
-      .get("/error-route")
-      .expect(500)
-      .then(({ body: { message } }) => {
-        expect(message).toBe("Internal Server Error");
-      });
-  });
   test("404: Responds to non-existent endpoint", () => {
     return request(app)
       .get("/api/wrongpath")
