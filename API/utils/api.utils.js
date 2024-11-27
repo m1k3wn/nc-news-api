@@ -11,7 +11,6 @@ exports.postgresErrorHandler = (error, request, response, next) => {
         .send({ message: mappedError.message });
     }
   } else {
-    //passes to next middleware utility function
     next(error);
   }
 };
@@ -25,12 +24,15 @@ exports.customErrorHandler = (error, request, response, next) => {
   }
 };
 
-// not found error
+// Wrong path Handler
 exports.wrongPathHandler = (request, response) => {
   response.status(404).send({ message: "Endpoint not found" });
 };
 
-// 500 server error
-exports.serverErrorHandler = (request, response) => {
-  response.status(500).send({ message: "Internal Server Error" });
+// 500 server error REFACTORED:
+exports.serverErrorHandler = (error, request, response, next) => {
+  console.error("Error Stack:", error.stack);
+  response.status(500).send({
+    message: "Internal Server Error",
+  });
 };
