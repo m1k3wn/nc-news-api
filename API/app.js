@@ -1,13 +1,16 @@
 const express = require("express");
-//controllers
 const { getApi } = require("./controllers/api.controller");
 const { getTopics } = require("./controllers/topics.controller");
+
 const {
+  /* Articles Controllers */
   getAllArticles,
   getArticleById,
+  getCommentsByArticleId,
 } = require("./controllers/articles.controller");
-//error handling middleware
+
 const {
+  /* Error Handlers */
   serverErrorHandler,
   wrongPathHandler,
   postgresErrorHandler,
@@ -17,12 +20,11 @@ const app = express();
 
 app.use(express.json());
 
-// get requests
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id", getArticleById);
-// comments endpoint goes here
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 // ADD: post, patch, delete here
 

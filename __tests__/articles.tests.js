@@ -88,4 +88,55 @@ describe("Endpoint /api/articles", () => {
         });
     });
   });
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("200: Responds with an array of comments for the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments.length).toBeGreaterThan(0);
+          comments.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: 1,
+              })
+            );
+          });
+        });
+    });
+    test("200: Responds with an empty array and message when article exists but has no comments", () => {
+      return request(app)
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments).toHaveLength(0);
+          expect(body.message).toBe("No comments found for this article");
+        });
+    });
+    test("400: Responds with 'Invalid request type' for non-numeric article_id", () => {
+      return request(app)
+        .get("/api/articles/not-a-number/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request type");
+        });
+    });
+    test("404: Responds with 'Article does not exist' when article_id is a valid request but does not exist", () => {
+      return request(app)
+        .get("/api/articles/9999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article does not exist");
+        });
+    });
+  });
 });

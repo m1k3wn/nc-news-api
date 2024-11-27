@@ -1,8 +1,9 @@
 const {
   /* models */
-  selectArticleById,
   checkArticleExists,
   fetchArticles,
+  selectArticleById,
+  selectCommentsByArticleId,
 } = require("../models/articles.model");
 
 exports.getAllArticles = (_, response) => {
@@ -13,15 +14,32 @@ exports.getAllArticles = (_, response) => {
 
 exports.getArticleById = (request, response, next) => {
   const { article_id } = request.params;
-  //returns a promise:
   checkArticleExists(article_id)
-    // wrapped with anonymous callback function 
     .then(() => selectArticleById(article_id))
     .then((article) => response.status(200).send({ article }))
     .catch(next);
 };
 
-////Refactored from: 
+exports.getCommentsByArticleId = (request, response, next) => {
+  const { article_id } = request.params;
+  checkArticleExists(article_id)
+    // wraps model invocation with callback to await checkArticleExists resolution
+    .then(() => {
+      return selectCommentsByArticleId(article_id);
+    })
+    .then((comments) => {
+      if (!comments.length) {
+        response
+          .status(200)
+          .send({ comments, message: "No comments found for this article" });
+      }
+      response.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
+////getArticleById was Refactored from (stephens example):
+/////// Will likely re-instate this once handling queries
 // exports.getArticleById = (request, response, next) => {
 //   const { article_id } = request.params;
 //   const promises = [selectArticleById(article_id)];
