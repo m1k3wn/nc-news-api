@@ -13,7 +13,7 @@ afterAll(() => {
   return db.end();
 });
 
-describe("Endpoint /api/articles", () => {
+describe("GET Requests /api/articles", () => {
   describe("GET /api/articles", () => {
     test("200 Responds with an array of all article objects correctly formatted", () => {
       return request(app)
@@ -130,7 +130,7 @@ describe("Endpoint /api/articles", () => {
           expect(body.message).toBe("Invalid request type");
         });
     });
-    test("404: Responds with 'Article does not exist' when article_id is a valid request but does not exist", () => {
+    test("404: Responds with 'Article does not exist' when article_id is a valid data type but unknwon route", () => {
       return request(app)
         .get("/api/articles/9999/comments")
         .expect(404)
@@ -138,5 +138,63 @@ describe("Endpoint /api/articles", () => {
           expect(body.message).toBe("Article does not exist");
         });
     });
+  });
+});
+
+describe("POST Requests /api/articles/:article_id/comments", () => {
+  test("201 Posts new comment with article_id matching :article_id and responds with posted comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "lurker", body: "A new comment!" })
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          body: expect.any(String),
+          votes: expect.any(Number),
+          author: "lurker",
+          article_id: 1,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400 Responds with status and 'Required fields are missing' message for empty request body", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({})
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Required fields are missing");
+      });
+  });
+  test("400 Responds with status and 'Request did not contain comment' message for empty comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "lurker", comment: "" })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Request did not contain comment");
+      });
+  });
+  test("404 Responds with 'User not found' message for unknown username", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "non_existent_user",
+        body: "hasn't found his place in the world",
+      })
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("User not found");
+      });
+  });
+  test("404 Responds with status and 'Article does not exist' message for a non-existent article_id", () => {
+    return request(app)
+      .post("/api/articles/8888/comments")
+      .send({ username: "lurker", body: "doesn't know where he's going" })
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article does not exist");
+      });
   });
 });
