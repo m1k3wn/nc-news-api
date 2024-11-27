@@ -1,18 +1,5 @@
 const db = require("../../db/connection");
 
-// verifies if passed :article_id returns an existing article or empty array
-exports.checkArticleExists = (article_id) => {
-  const query = `SELECT * FROM articles WHERE article_id = $1`;
-  const values = [article_id];
-  return db.query(query, values).then(({ rows }) => {
-    if (!rows.length) {
-      return Promise.reject({ status: 404, message: "Article does not exist" });
-    }
-    return true;
-  });
-};
-
-// fetches all articles without body by date descending
 exports.fetchArticles = () => {
   return db
     .query(
@@ -58,5 +45,16 @@ ORDER BY created_at DESC;`;
 
   return db.query(query, [article_id]).then(({ rows }) => {
     return rows;
+  });
+};
+
+exports.insertUserComment = (article_id, username, body) => {
+  const insertQuery = `INSERT INTO comments (article_id, author, body)
+  VALUES ($1, $2, $3)
+  RETURNING *;
+`;
+  const values = [article_id, username, body];
+  return db.query(insertQuery, values).then(({ rows }) => {
+    return rows[0];
   });
 };

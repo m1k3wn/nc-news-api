@@ -41,5 +41,41 @@
         "comment_count": 6
       }
     ]
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "Responds with an array of comments for the given article_id",
+    "queries": ["article_id"],
+    "exampleResponse": [
+      {
+        "comment_id": 1,
+        "votes": 0,
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "author": "lurker",
+        "body": "A comment",
+        "article_id": 1
+      },
+      {
+        "comment_id": 2,
+        "votes": 1,
+        "created_at": "2018-05-30T16:01:15.341Z",
+        "author": "icellusedkars",
+        "body": "A different comment",
+        "article_id": 1
+      }
+    ]
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Posts new comment and responds with posted comment",
+    "queries": ["article_id"],
+    "exampleResponse": [
+      {
+        "comment_id": 1,
+        "body": "A comment",
+        "votes": 0,
+        "author": "lurker",
+        "article_id": 1,
+        "created_at": "2018-05-30T15:59:13.341Z"
+      }
+    ]
   }
 }

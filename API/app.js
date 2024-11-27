@@ -7,6 +7,7 @@ const {
   getAllArticles,
   getArticleById,
   getCommentsByArticleId,
+  addCommentToArticle,
 } = require("./controllers/articles.controller");
 
 const {
@@ -20,19 +21,23 @@ const app = express();
 
 app.use(express.json());
 
+/* GET Requests */
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
-// ADD: post, patch, delete here
+/* POST Requests */
+app.post("/api/articles/:article_id/comments", addCommentToArticle);
+
+// ADD: patch, delete
 
 app.use(postgresErrorHandler);
 app.use(customErrorHandler);
 
 app.use("/api/*", wrongPathHandler);
 
-app.use(serverErrorHandler);
+// app.use(serverErrorHandler);
 
 module.exports = app;
