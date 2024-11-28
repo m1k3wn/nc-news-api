@@ -1,15 +1,20 @@
 const express = require("express");
 const { getApi } = require("./controllers/api.controller");
-const { getTopics } = require("./controllers/topics.controller");
+const {
+  /* Topics Controller */
+  getTopics,
+} = require("./controllers/topics.controller");
 
 const {
-  /* Articles Controllers */
+  /* Articles Controller */
   getAllArticles,
   getArticleById,
   getCommentsByArticleId,
   addCommentToArticle,
   updateArticleVotes,
 } = require("./controllers/articles.controller");
+
+const { deleteCommentById } = require("./controllers/comments.controller");
 
 const {
   /* Error Handlers */
@@ -35,7 +40,8 @@ app.post("/api/articles/:article_id/comments", addCommentToArticle);
 /* PATCH Requests */
 app.patch("/api/articles/:article_id", updateArticleVotes);
 
-// ADD: patch, delete
+/* PATCH Requests */
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.use(postgresErrorHandler);
 app.use(customErrorHandler);
