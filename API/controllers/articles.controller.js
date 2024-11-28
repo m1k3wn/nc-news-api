@@ -1,10 +1,18 @@
+const { response } = require("../app");
 const {
   /* models */
-  checkArticleExists,
   fetchArticles,
   selectArticleById,
   selectCommentsByArticleId,
+  insertUserComment,
+  updateVotesByArticleId,
 } = require("../models/articles.model");
+
+const {
+  /* User/Article validation */
+  checkUserExists,
+  checkArticleExists,
+} = require("../utils/api.utils");
 
 exports.getAllArticles = (_, response) => {
   fetchArticles().then((articles) => {
@@ -38,19 +46,37 @@ exports.getCommentsByArticleId = (request, response, next) => {
     .catch(next);
 };
 
-////getArticleById was Refactored from (stephens example):
-/////// Will likely re-instate this once handling queries
-// exports.getArticleById = (request, response, next) => {
-//   const { article_id } = request.params;
-//   const promises = [selectArticleById(article_id)];
-//   if (article_id) {
-//     promises.push(checkArticleExists(article_id));
-//   }
-//   Promise.all(promises)
-//     .then(([article]) => {
-//       response.status(200).send({ article });
-//     })
-//     .catch((error) => {
-//       next(error);
-//     });
-// };
+exports.addCommentToArticle = (request, response, next) => {
+  const { article_id } = request.params;
+  const { username, body } = request.body;
+
+  if (!username && !body) {
+    return next({ status: 400, message: "Required fields are missing" });
+  } else if (!body) {
+    return next({ status: 400, message: "Request did not contain comment" });
+  }
+  checkUserExists(username)
+    .then(() => {
+      return checkArticleExists(article_id);
+    })
+    .then(() => {
+      return insertUserComment(article_id, username, body);
+    })
+    .then((comment) => {
+      response.status(201).send({ comment });
+    })
+    .catch(next);
+};
+
+exports.updateArticleVotes = (request, response, next) => {
+  const { article_id } = request.params;
+  const { inc_votes } = request.body;
+  checkArticleExists(article_id)
+    .then(() => {
+      return updateVotesByArticleId(article_id, inc_votes);
+    })
+    .then((article) => {
+      response.status(200).send({ article });
+    })
+    .catch(next);
+};
