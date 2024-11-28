@@ -9,15 +9,22 @@ const {
 } = require("../models/articles.model");
 
 const {
-  /* User/Article validation */
+  /* Validation Middleware */
   checkUserExists,
   checkArticleExists,
+  validateSortQuery,
 } = require("../utils/api.utils");
 
-exports.getAllArticles = (_, response) => {
-  fetchArticles().then((articles) => {
-    response.status(200).send({ articles });
-  });
+// add sort controller and if no sort_by move getArticles logic into that block
+exports.getArticles = (request, response, next) => {
+  let { sort_by, order } = request.query;
+
+  sort_by = sort_by || "created_at";
+  order = order || "DESC";
+  Promise.resolve(validateSortQuery(sort_by, order))
+    .then(() => fetchArticles(sort_by, order))
+    .then((articles) => response.status(200).send({ articles }))
+    .catch(next);
 };
 
 exports.getArticleById = (request, response, next) => {

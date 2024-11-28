@@ -1,4 +1,27 @@
 const db = require("../../db/connection");
+// validate sortquery
+exports.validateSortQuery = (sort_by, order) => {
+  const validSortColumns = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_img_url",
+  ];
+  const validOrders = ["ASC", "DESC"];
+
+  if (sort_by && !validSortColumns.includes(sort_by)) {
+    throw { status: 400, message: "Invalid category request" };
+  }
+  // validates order request
+  if (order && !validOrders.includes(order.toUpperCase())) {
+    throw { status: 400, message: "Invalid sort request" };
+  }
+  return true;
+};
+
 //Check article exists
 exports.checkArticleExists = (article_id) => {
   const query = `SELECT * FROM articles WHERE article_id = $1`;
@@ -55,7 +78,7 @@ exports.wrongPathHandler = (request, response) => {
   response.status(404).send({ message: "Endpoint not found" });
 };
 
-// FOR DEBUGGING
+// // DEBUGGER
 // // 500 Internal Server Error (debugger):
 // exports.serverErrorHandler = (error, request, response, next) => {
 //   console.log("Error caught in 500 handler:", error);

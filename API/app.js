@@ -12,7 +12,7 @@ const {
 
 const {
   /* Articles Controller */
-  getAllArticles,
+  getArticles,
   getArticleById,
   getCommentsByArticleId,
   addCommentToArticle,
@@ -36,7 +36,7 @@ app.use(express.json());
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
 app.get("/api/users", getAllUsers);
-app.get("/api/articles", getAllArticles);
+app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
@@ -46,7 +46,7 @@ app.post("/api/articles/:article_id/comments", addCommentToArticle);
 /* PATCH Requests */
 app.patch("/api/articles/:article_id", updateArticleVotes);
 
-/* PATCH Requests */
+/* DELETE Requests */
 app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.use(postgresErrorHandler);
