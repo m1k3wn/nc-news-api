@@ -53,7 +53,7 @@ exports.wrongPathHandler = (request, response) => {
   response.status(404).send({ message: "Endpoint not found" });
 };
 
-// NOT WORKING
+// FOR DEBUGGING
 // // 500 Internal Server Error (debugger):
 // exports.serverErrorHandler = (error, request, response, next) => {
 //   console.log("Error caught in 500 handler:", error);

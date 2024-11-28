@@ -5,6 +5,7 @@ const {
   selectArticleById,
   selectCommentsByArticleId,
   insertUserComment,
+  updateVotesByArticleId,
 } = require("../models/articles.model");
 
 const {
@@ -63,6 +64,19 @@ exports.addCommentToArticle = (request, response, next) => {
     })
     .then((comment) => {
       response.status(201).send({ comment });
+    })
+    .catch(next);
+};
+
+exports.updateArticleVotes = (request, response, next) => {
+  const { article_id } = request.params;
+  const { inc_votes } = request.body;
+  checkArticleExists(article_id)
+    .then(() => {
+      return updateVotesByArticleId(article_id, inc_votes);
+    })
+    .then((article) => {
+      response.status(200).send({ article });
     })
     .catch(next);
 };
