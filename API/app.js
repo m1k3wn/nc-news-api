@@ -6,6 +6,11 @@ const {
 } = require("./controllers/topics.controller");
 
 const {
+  /* Users Controller */
+  getAllUsers,
+} = require("./controllers/users.controller");
+
+const {
   /* Articles Controller */
   getAllArticles,
   getArticleById,
@@ -30,6 +35,7 @@ app.use(express.json());
 /* GET Requests */
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
+app.get("/api/users", getAllUsers);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
