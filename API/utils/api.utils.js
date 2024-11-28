@@ -28,6 +28,8 @@ exports.postgresErrorHandler = (error, request, response, next) => {
   if (error.code) {
     const postgresErrorMap = {
       "22P02": { status: 400, message: "Invalid request type" },
+      // 23503: { status: 400, message: "Foreign key violation" },
+      // 23505: { status: 400, message: "Duplicate key value" },
     };
     const mappedError = postgresErrorMap[error.code];
     if (mappedError) {
