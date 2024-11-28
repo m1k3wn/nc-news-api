@@ -1,8 +1,4 @@
 const db = require("../../db/connection");
-
-// Add check columns exist util here
-/// add tests for utils middleware
-
 //Check article exists
 exports.checkArticleExists = (article_id) => {
   const query = `SELECT * FROM articles WHERE article_id = $1`;
