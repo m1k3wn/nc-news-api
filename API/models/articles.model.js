@@ -1,21 +1,23 @@
 const db = require("../../db/connection");
 
-exports.fetchArticles = () => {
-  return db
-    .query(
-      `SELECT 
-      article_id,
-      title,
-      topic,
-      author,
-      created_at,
-      votes,
-      article_img_url
-       FROM articles ORDER BY created_at DESC`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+exports.fetchArticles = (sort_by, order) => {
+  let sqlQuery = `SELECT
+  article_id,
+  title,
+  topic,
+  author,
+  created_at,
+  votes,
+  article_img_url
+   FROM articles`;
+
+  if (sort_by) {
+    sqlQuery += ` ORDER BY ${sort_by} ${order}`;
+  }
+
+  return db.query(sqlQuery).then(({ rows }) => {
+    return rows;
+  });
 };
 
 // fetchs by specific :article_id (add sortBy logic into here later)

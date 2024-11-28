@@ -34,7 +34,7 @@ describe("/api/articles Endpoint", () => {
             });
           });
       });
-      test("200 Responds with articles sorted by date in descending order", () => {
+      test("200 Responds with articles default sorted by date in descending order", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
@@ -137,6 +137,40 @@ describe("/api/articles Endpoint", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.message).toBe("Article does not exist");
+          });
+      });
+    });
+    describe("GET /api/articles?sort_by queries", () => {
+      test("200: Responds with articles sorted by valid column in default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=topic")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("topic", { descending: true });
+          });
+      });
+      test("200: Responds with articles sorted by valid column in ascending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author&order=asc")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("author", { descending: false });
+          });
+      });
+      test("400: Responds with status and message for invalid sort parameter", () => {
+        return request(app)
+          .get("/api/articles?sort_by=sneaky-sql")
+          .expect(400)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Invalid category request");
+          });
+      });
+      test("200: Prevents invalid category SQL injection by assigning default sort_by and order category in controller", () => {
+        return request(app)
+          .get("/api/articles?sneakysql=asc")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("created_at", { descending: true });
           });
       });
     });
