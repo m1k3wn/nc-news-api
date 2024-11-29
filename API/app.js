@@ -54,6 +54,7 @@ app.use(customErrorHandler);
 
 app.use("/api/*", wrongPathHandler);
 
+/* INTERNAL Debugger */
 // app.use(serverErrorHandler);
 
 module.exports = app;
