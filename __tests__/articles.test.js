@@ -34,7 +34,7 @@ describe("/api/articles Endpoint", () => {
             });
           });
       });
-      test("200 Responds with articles default sorted by date in descending order", () => {
+      test("200 Responds with articles default sorted by created_at in descending order", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
@@ -165,12 +165,48 @@ describe("/api/articles Endpoint", () => {
             expect(message).toBe("Invalid category request");
           });
       });
-      test("200: Prevents invalid category SQL injection by assigning default sort_by and order category in controller", () => {
+      test("200: Prevents invalid category SQL injection by assigning default sort_by and order 'descending' in controller", () => {
         return request(app)
           .get("/api/articles?sneakysql=asc")
           .expect(200)
           .then(({ body: { articles } }) => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+    });
+    describe("GET /api/articles?topic= queries", () => {
+      test("200: Responds with status and articles filtered by specified topic", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(Array.isArray(articles)).toBe(true);
+            expect(articles).toHaveLength(1);
+            expect(articles[0]).toMatchObject({
+              article_id: expect.any(Number),
+              title: "UNCOVERED: catspiracy to bring down democracy",
+              topic: "cats",
+              author: "rogersop",
+              created_at: expect.any(String),
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            });
+          });
+      });
+      test("404: Responds with status and `Topic does not exist` for non-existent topic", () => {
+        return request(app)
+          .get("/api/articles?topic=notpets")
+          .expect(404)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Topic does not exist");
+          });
+      });
+      test("400: Responds with status and 'Invalid topic format' for incorrect topic format", () => {
+        return request(app)
+          .get("/api/articles?topic=5678")
+          .expect(400)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Invalid topic format");
           });
       });
     });

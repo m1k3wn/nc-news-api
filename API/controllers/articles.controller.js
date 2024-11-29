@@ -13,16 +13,21 @@ const {
   checkUserExists,
   checkArticleExists,
   validateSortQuery,
+  validateTopics,
 } = require("../utils/api.utils");
 
-// add sort controller and if no sort_by move getArticles logic into that block
 exports.getArticles = (request, response, next) => {
-  let { sort_by, order } = request.query;
-
+  let { sort_by, order, topic } = request.query;
+  topic = topic || null;
   sort_by = sort_by || "created_at";
   order = order || "DESC";
+  // validate topic (if exists)
+  if (topic) {
+    Promise.resolve(validateTopics(topic)).catch(next);
+  }
+  //then validate sort_by and order (always exist;  defaults assigned above)
   Promise.resolve(validateSortQuery(sort_by, order))
-    .then(() => fetchArticles(sort_by, order))
+    .then(() => fetchArticles(sort_by, order, topic))
     .then((articles) => response.status(200).send({ articles }))
     .catch(next);
 };

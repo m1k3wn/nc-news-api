@@ -1,6 +1,6 @@
 const db = require("../../db/connection");
 
-exports.fetchArticles = (sort_by, order) => {
+exports.fetchArticles = (sort_by, order, topic) => {
   let sqlQuery = `SELECT
   article_id,
   title,
@@ -10,17 +10,21 @@ exports.fetchArticles = (sort_by, order) => {
   votes,
   article_img_url
    FROM articles`;
+  const queryValues = [];
 
+  if (topic) {
+    sqlQuery += ` WHERE topic = $1`;
+    queryValues.push(topic);
+  }
   if (sort_by) {
-    sqlQuery += ` ORDER BY ${sort_by} ${order}`;
+    sqlQuery += ` ORDER BY ${sort_by} ${order};`;
   }
 
-  return db.query(sqlQuery).then(({ rows }) => {
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
     return rows;
   });
 };
 
-// fetchs by specific :article_id (add sortBy logic into here later)
 exports.selectArticleById = (article_id) => {
   let sqlQuery = `SELECT * FROM articles `;
   const queryValues = [];

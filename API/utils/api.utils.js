@@ -1,4 +1,19 @@
 const db = require("../../db/connection");
+
+exports.validateTopics = (topic) => {
+  // checks for non-numeric topic
+  if (Number(+topic)) {
+    return Promise.reject({ status: 400, message: "Invalid topic format" });
+  }
+  const query = `SELECT * FROM topics WHERE slug = $1`;
+  return db.query(query, [topic]).then(({ rows }) => {
+    if (!rows.length) {
+      return Promise.reject({ status: 404, message: "Topic does not exist" });
+    }
+    return true;
+  });
+};
+
 // validate sortquery
 exports.validateSortQuery = (sort_by, order) => {
   const validSortColumns = [
@@ -10,6 +25,7 @@ exports.validateSortQuery = (sort_by, order) => {
     "votes",
     "article_img_url",
   ];
+
   const validOrders = ["ASC", "DESC"];
 
   if (sort_by && !validSortColumns.includes(sort_by)) {
@@ -24,6 +40,7 @@ exports.validateSortQuery = (sort_by, order) => {
 
 //Check article exists
 exports.checkArticleExists = (article_id) => {
+  //detects SQL injection attempt
   const query = `SELECT * FROM articles WHERE article_id = $1`;
   return db.query(query, [article_id]).then(({ rows }) => {
     if (!rows.length) {
@@ -78,8 +95,8 @@ exports.wrongPathHandler = (request, response) => {
   response.status(404).send({ message: "Endpoint not found" });
 };
 
-// // DEBUGGER
-// // 500 Internal Server Error (debugger):
+// DEBUGGER
+// 500 Internal Server Error (Internal use only):
 // exports.serverErrorHandler = (error, request, response, next) => {
 //   console.log("Error caught in 500 handler:", error);
 //   response.status(500).send({
