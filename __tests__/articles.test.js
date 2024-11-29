@@ -69,6 +69,25 @@ describe("/api/articles Endpoint", () => {
               body: expect.any(String),
               created_at: expect.any(String),
               article_img_url: expect.any(String),
+              comment_count: expect.any(String),
+            });
+          });
+      });
+      test("200: Returns correct comment_count for a given article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).toMatchObject({
+              title: "Living in the shadow of a great man",
+              topic: "mitch",
+              author: "butter_bridge",
+              body: "I find this existence challenging",
+              created_at: expect.any(String),
+              votes: 100,
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              comment_count: "11",
             });
           });
       });
@@ -207,6 +226,14 @@ describe("/api/articles Endpoint", () => {
           .expect(400)
           .then(({ body: { message } }) => {
             expect(message).toBe("Invalid topic format");
+          });
+      });
+      test("200: Respond with status and empty object when topic exists but has no associated articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toEqual({});
           });
       });
     });

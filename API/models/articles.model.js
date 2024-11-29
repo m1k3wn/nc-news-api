@@ -1,5 +1,7 @@
 const db = require("../../db/connection");
 
+const { checkArticleExists } = require("../utils/api.utils");
+
 exports.fetchArticles = (sort_by, order, topic) => {
   let sqlQuery = `SELECT
   article_id,
@@ -26,13 +28,21 @@ exports.fetchArticles = (sort_by, order, topic) => {
 };
 
 exports.selectArticleById = (article_id) => {
-  let sqlQuery = `SELECT * FROM articles `;
-  const queryValues = [];
-  if (article_id) {
-    sqlQuery += `WHERE article_id=$1`;
-    queryValues.push(article_id);
-  }
-  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+  let sqlQuery = `SELECT articles.article_id,
+  articles.title,
+  articles.topic,
+  articles.author,
+  articles.created_at,
+  articles.body,
+  articles.votes,
+  articles.article_img_url,
+  COUNT(comments.comment_id) AS comment_count
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  WHERE articles.article_id = $1
+  GROUP BY articles.article_id
+  ORDER BY comment_count DESC;`;
+  return db.query(sqlQuery, [article_id]).then(({ rows }) => {
     return rows[0];
   });
 };

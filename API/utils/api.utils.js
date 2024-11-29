@@ -14,7 +14,6 @@ exports.validateTopics = (topic) => {
   });
 };
 
-// validate sortquery
 exports.validateSortQuery = (sort_by, order) => {
   const validSortColumns = [
     "article_id",
@@ -38,9 +37,7 @@ exports.validateSortQuery = (sort_by, order) => {
   return true;
 };
 
-//Check article exists
 exports.checkArticleExists = (article_id) => {
-  //detects SQL injection attempt
   const query = `SELECT * FROM articles WHERE article_id = $1`;
   return db.query(query, [article_id]).then(({ rows }) => {
     if (!rows.length) {
@@ -50,7 +47,6 @@ exports.checkArticleExists = (article_id) => {
   });
 };
 
-// Validate username
 exports.checkUserExists = (username) => {
   const usernameCheckQuery = `SELECT * FROM users WHERE username = $1`;
   return db.query(usernameCheckQuery, [username]).then(({ rows }) => {

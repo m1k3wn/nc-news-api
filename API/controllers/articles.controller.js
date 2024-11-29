@@ -16,27 +16,53 @@ const {
   validateTopics,
 } = require("../utils/api.utils");
 
+//backup
+// exports.getArticles = (request, response, next) => {
+//   let { sort_by, order, topic } = request.query;
+//   topic = topic || null;
+//   sort_by = sort_by || "created_at";
+//   order = order || "DESC";
+
+//   if (topic) {
+//     Promise.resolve(validateTopics(topic)).catch(next);
+//   }
+//   Promise.resolve(validateSortQuery(sort_by, order))
+//     .then(() => fetchArticles(sort_by, order, topic))
+//     .then((articles) => response.status(200).send({ articles }))
+//     .catch(next);
+// };
+
 exports.getArticles = (request, response, next) => {
   let { sort_by, order, topic } = request.query;
   topic = topic || null;
   sort_by = sort_by || "created_at";
   order = order || "DESC";
-  // validate topic (if exists)
+
   if (topic) {
     Promise.resolve(validateTopics(topic)).catch(next);
   }
-  //then validate sort_by and order (always exist;  defaults assigned above)
-  Promise.resolve(validateSortQuery(sort_by, order))
-    .then(() => fetchArticles(sort_by, order, topic))
-    .then((articles) => response.status(200).send({ articles }))
+  Promise.resolve(validateSortQuery(sort_by, order));
+  // promise .all
+  // then block checks for
+
+  fetchArticles(sort_by, order, topic)
+    .then((articles) => {
+      if (!articles.length) {
+        response.status(200).end();
+      }
+      response.status(200).send({ articles });
+    })
     .catch(next);
 };
 
 exports.getArticleById = (request, response, next) => {
   const { article_id } = request.params;
   checkArticleExists(article_id)
-    .then(() => selectArticleById(article_id))
-    .then((article) => response.status(200).send({ article }))
+    .then(() => {
+      selectArticleById(article_id).then((article) =>
+        response.status(200).send({ article })
+      );
+    })
     .catch(next);
 };
 
