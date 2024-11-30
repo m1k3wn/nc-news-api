@@ -91,7 +91,7 @@ describe("/api/articles Endpoint", () => {
             });
           });
       });
-      test("404: Responds with status and error message for a valid but non-existent article_id", () => {
+      test("404: Responds with status and error message for a numeri c but non-existent article_id", () => {
         return request(app)
           .get("/api/articles/99999")
           .expect(404)
@@ -99,9 +99,17 @@ describe("/api/articles Endpoint", () => {
             expect(message).toBe("Article does not exist");
           });
       });
-      test("400: Responds with status and error message for invalid article_id", () => {
+      test("400: Responds with status and error message for non-numeric article_id", () => {
         return request(app)
           .get("/api/articles/invalidEndpoint")
+          .expect(400)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Invalid request type");
+          });
+      });
+      test("400 Prevents SQL injection in article_id path parameter", () => {
+        return request(app)
+          .get("/api/articles/1; DROP TABLE articles;--")
           .expect(400)
           .then(({ body: { message } }) => {
             expect(message).toBe("Invalid request type");
@@ -184,12 +192,22 @@ describe("/api/articles Endpoint", () => {
             expect(message).toBe("Invalid category request");
           });
       });
-      test("200: Prevents invalid category SQL injection by assigning default sort_by and order 'descending' in controller", () => {
+      test("200: Prevents SQL injection by assigning default sort_by and order 'descending' in model", () => {
         return request(app)
-          .get("/api/articles?sneakysql=asc")
+          .get("/api/articles?;SELECT * FROM users;--=asc")
           .expect(200)
           .then(({ body: { articles } }) => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      test("400: Prevents SQL injection in order parameter", () => {
+        return request(app)
+          .get(
+            "/api/articles?sort_by=created_at&order=ASC; DROP TABLE articles;--"
+          )
+          .expect(400)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Invalid sort request");
           });
       });
     });
@@ -228,12 +246,23 @@ describe("/api/articles Endpoint", () => {
             expect(message).toBe("Invalid topic format");
           });
       });
+      // adds explict test for SQL injection attempt
+      test("400: Prevents SQL injection in topic query parameter", () => {
+        return request(app)
+          .get("/api/articles?topic=cats;DROP TABLE articles;--;")
+          .expect(400)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Invalid topic format");
+          });
+      });
+      // refactored test to check for correct return
       test("200: Respond with status and empty object when topic exists but has no associated articles", () => {
         return request(app)
           .get("/api/articles?topic=paper")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).toEqual({});
+          .then(({ body: { message, articles } }) => {
+            expect(articles).toEqual([]);
+            expect(message).toBe("No articles found for this topic");
           });
       });
     });

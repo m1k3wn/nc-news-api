@@ -16,39 +16,23 @@ const {
   validateTopics,
 } = require("../utils/api.utils");
 
-//backup
-// exports.getArticles = (request, response, next) => {
-//   let { sort_by, order, topic } = request.query;
-//   topic = topic || null;
-//   sort_by = sort_by || "created_at";
-//   order = order || "DESC";
-
-//   if (topic) {
-//     Promise.resolve(validateTopics(topic)).catch(next);
-//   }
-//   Promise.resolve(validateSortQuery(sort_by, order))
-//     .then(() => fetchArticles(sort_by, order, topic))
-//     .then((articles) => response.status(200).send({ articles }))
-//     .catch(next);
-// };
-
 exports.getArticles = (request, response, next) => {
+  // removed default assignment from controller
   let { sort_by, order, topic } = request.query;
-  topic = topic || null;
-  sort_by = sort_by || "created_at";
-  order = order || "DESC";
 
-  if (topic) {
-    Promise.resolve(validateTopics(topic)).catch(next);
-  }
-  Promise.resolve(validateSortQuery(sort_by, order));
-  // promise .all
-  // then block checks for
-
-  fetchArticles(sort_by, order, topic)
+  // all validation grouped in promise.all
+  Promise.all([
+    topic ? validateTopics(topic) : Promise.resolve(),
+    validateSortQuery(sort_by, order),
+  ])
+    .then(() => fetchArticles(sort_by, order, topic))
     .then((articles) => {
-      if (!articles.length) {
-        response.status(200).end();
+      if (topic && !articles.length) {
+        response.status(200).send({
+          // refactors return for no articles found
+          articles: [],
+          message: "No articles found for this topic",
+        });
       }
       response.status(200).send({ articles });
     })
