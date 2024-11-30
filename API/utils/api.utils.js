@@ -1,6 +1,21 @@
 const db = require("../../db/connection");
+exports.validSortColumns = [
+  "article_id",
+  "title",
+  "topic",
+  "author",
+  "created_at",
+  "votes",
+  "article_img_url",
+];
 
+/* Articles utils */
 exports.validateTopics = (topic) => {
+  const validTopicPattern = /^[a-z0-9-]+$/i;
+  //combined tests for SQL injection
+  if (!validTopicPattern.test(topic)) {
+    return Promise.reject({ status: 400, message: "Invalid topic format" });
+  }
   // checks for non-numeric topic
   if (Number(+topic)) {
     return Promise.reject({ status: 400, message: "Invalid topic format" });
@@ -15,26 +30,17 @@ exports.validateTopics = (topic) => {
 };
 
 exports.validateSortQuery = (sort_by, order) => {
-  const validSortColumns = [
-    "article_id",
-    "title",
-    "topic",
-    "author",
-    "created_at",
-    "votes",
-    "article_img_url",
-  ];
+  // refactored to use regex for stricter test
+  const validOrderPattern = /^(ASC|DESC)$/i;
 
-  const validOrders = ["ASC", "DESC"];
+  if (sort_by && !exports.validSortColumns.includes(sort_by)) {
+    return Promise.reject({ status: 400, message: "Invalid category request" });
+  }
 
-  if (sort_by && !validSortColumns.includes(sort_by)) {
-    throw { status: 400, message: "Invalid category request" };
+  if (order && !validOrderPattern.test(order)) {
+    return Promise.reject({ status: 400, message: "Invalid sort request" });
   }
-  // validates order request
-  if (order && !validOrders.includes(order.toUpperCase())) {
-    throw { status: 400, message: "Invalid sort request" };
-  }
-  return true;
+  return Promise.resolve(true);
 };
 
 exports.checkArticleExists = (article_id) => {
@@ -47,6 +53,27 @@ exports.checkArticleExists = (article_id) => {
   });
 };
 
+/* Comments utils */
+exports.validateCommentId = (comment_id) => {
+  const numericId = +comment_id;
+
+  if (isNaN(numericId) || !Number.isInteger(numericId) || numericId <= 0) {
+    return Promise.reject({ status: 400, message: "Invalid comment id" });
+  }
+  return Promise.resolve(true);
+};
+exports.checkCommentExists = (comment_id) => {
+  const query = `SELECT * FROM comments WHERE comment_id = $1`;
+  return db.query(query, [comment_id]).then(({ rows }) => {
+    if (!rows.length) {
+      return Promise.reject({ status: 404, message: "Comment not found" });
+    }
+    // automatically wrapped in a promise as is within .then block
+    return true;
+  });
+};
+
+/* Users utils */
 exports.checkUserExists = (username) => {
   const usernameCheckQuery = `SELECT * FROM users WHERE username = $1`;
   return db.query(usernameCheckQuery, [username]).then(({ rows }) => {

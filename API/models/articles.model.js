@@ -1,8 +1,11 @@
 const db = require("../../db/connection");
 
-const { checkArticleExists } = require("../utils/api.utils");
+const { checkArticleExists, validSortColumns } = require("../utils/api.utils");
 
-exports.fetchArticles = (sort_by, order, topic) => {
+exports.fetchArticles = (sort_by = "created_at", order = "DESC", topic) => {
+  // order assignment moved to model model
+  order = order.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
   let sqlQuery = `SELECT
   article_id,
   title,
@@ -18,13 +21,14 @@ exports.fetchArticles = (sort_by, order, topic) => {
     sqlQuery += ` WHERE topic = $1`;
     queryValues.push(topic);
   }
-  if (sort_by) {
-    sqlQuery += ` ORDER BY ${sort_by} ${order};`;
-  }
+  // removes redundant if block, orders by defaults
+  sqlQuery += ` ORDER BY ${sort_by} ${order};`;
 
-  return db.query(sqlQuery, queryValues).then(({ rows }) => {
-    return rows;
-  });
+  return db.query(sqlQuery, queryValues).then(
+    ({ rows }) =>
+      // changed to implicit return
+      rows
+  );
 };
 
 exports.selectArticleById = (article_id) => {

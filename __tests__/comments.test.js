@@ -45,5 +45,37 @@ describe("/api/comments Endpoint", () => {
           expect(message).toBe("Invalid comment id");
         });
     });
+    test("400: Prevents SQL injection attempts", () => {
+      return request(app)
+        .delete("/api/comments/1; DROP TABLE comments;--")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Invalid comment id");
+        });
+    });
+    test("400: Rejects decimal number for comment_id", () => {
+      return request(app)
+        .delete("/api/comments/1.5")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Invalid comment id");
+        });
+    });
+    test("400: Rejects negative integer for comment_id", () => {
+      return request(app)
+        .delete("/api/comments/-1")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Invalid comment id");
+        });
+    });
+    test("400: Rejects 0 for comment_id", () => {
+      return request(app)
+        .delete("/api/comments/0")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Invalid comment id");
+        });
+    });
   });
 });
