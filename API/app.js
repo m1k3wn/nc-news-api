@@ -21,7 +21,11 @@ const {
   updateArticleVotes,
 } = require("./controllers/articles.controller");
 
-const { deleteCommentById } = require("./controllers/comments.controller");
+const {
+  /* Comments Controller */
+  deleteCommentById,
+  updateCommentVotes, 
+} = require("./controllers/comments.controller");
 
 const {
   /* Error Handlers */
@@ -48,6 +52,8 @@ app.post("/api/articles/:article_id/comments", addCommentToArticle);
 
 /* PATCH Requests */
 app.patch("/api/articles/:article_id", updateArticleVotes);
+app.patch("/api/comments/:comment_id", updateCommentVotes);
+
 
 /* DELETE Requests */
 app.delete("/api/comments/:comment_id", deleteCommentById);
